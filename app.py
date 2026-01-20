@@ -98,9 +98,11 @@ def process_image_for_pdf(image_data):
 
 def generate_pdf(data):
     """Gera o PDF com os dados fornecidos"""
+    print("=== Função generate_pdf iniciada ===")
     buffer = io.BytesIO()
     
     footer_text = f"Relatório emitido por: {data.get('sistema', 'Sistema')}"
+    print(f"Footer: {footer_text}")
     
     doc = SimpleDocTemplate(
         buffer,
@@ -110,9 +112,11 @@ def generate_pdf(data):
         topMargin=2*cm,
         bottomMargin=3*cm
     )
+    print("SimpleDocTemplate criado")
     
     story = []
     styles = getSampleStyleSheet()
+    print("Estilos carregados")
     
     # Estilos customizados
     header_style = ParagraphStyle(
@@ -287,8 +291,10 @@ def generate_pdf(data):
     
     # Gerar PDF
     doc.build(story, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, footer_text=footer_text, **kwargs))
+    print("PDF buildado com sucesso")
     
     buffer.seek(0)
+    print(f"Buffer pronto, tamanho: {buffer.getbuffer().nbytes} bytes")
     return buffer
 
 @app.route('/')
@@ -298,24 +304,36 @@ def index():
 @app.route('/api/gerar-pdf', methods=['POST'])
 def gerar_pdf():
     try:
+        print("=== Iniciando geração de PDF ===")
         data = request.get_json()
+        print(f"Dados recebidos: {len(data.get('fotos', []))} fotos")
         
         # Validações
         if not data:
+            print("ERRO: Dados não fornecidos")
             return jsonify({'error': 'Dados não fornecidos'}), 400
         
         if not data.get('fotos') or len(data['fotos']) == 0:
+            print("ERRO: Nenhuma foto fornecida")
             return jsonify({'error': 'Nenhuma foto fornecida'}), 400
         
         # Validar número de fotos
         if len(data['fotos']) > 50:
+            print("ERRO: Muitas fotos")
             return jsonify({'error': 'Máximo de 50 fotos por relatório'}), 400
         
+        # Garantir que o diretório temp existe
+        os.makedirs('temp_uploads', exist_ok=True)
+        print("Diretório temp_uploads verificado")
+        
         # Gerar PDF
+        print("Gerando PDF...")
         pdf_buffer = generate_pdf(data)
+        print("PDF gerado com sucesso")
         
         # Retornar PDF
         filename = f"relatorio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        print(f"Enviando arquivo: {filename}")
         return send_file(
             pdf_buffer,
             mimetype='application/pdf',
@@ -324,8 +342,15 @@ def gerar_pdf():
         )
     
     except Exception as e:
-        print(f"Erro ao gerar PDF: {str(e)}")
-        return jsonify({'error': 'Erro ao gerar PDF', 'details': str(e)}), 500
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"ERRO CRÍTICO ao gerar PDF:")
+        print(error_details)
+        return jsonify({
+            'error': 'Erro ao gerar PDF', 
+            'details': str(e),
+            'type': type(e).__name__
+        }), 500
 
 @app.route('/api/health', methods=['GET'])
 def health():
