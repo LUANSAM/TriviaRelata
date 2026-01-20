@@ -303,12 +303,17 @@ def health():
     return jsonify({'status': 'ok', 'logo_exists': os.path.exists('assets/logo.png')})
 
 if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    
     print("=" * 60)
     print("RELATÓRIO FOTOGRÁFICO - TRIVIA TRENS")
     print("=" * 60)
     print(f"\n✓ Servidor iniciado")
-    print(f"✓ Acesse: http://localhost:5000")
+    print(f"✓ Porta: {port}")
+    print(f"✓ Debug: {debug}")
     print(f"\n⚠ IMPORTANTE: Coloque o logo da empresa em: assets/logo.png")
     print(f"   (Formatos aceitos: PNG, JPG)")
     print("=" * 60)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=debug, host='0.0.0.0', port=port)
