@@ -98,25 +98,28 @@ def process_image_for_pdf(image_data):
 
 def generate_pdf(data):
     """Gera o PDF com os dados fornecidos"""
-    print("=== Função generate_pdf iniciada ===")
+    print("\n" + "="*60)
+    print("INICIANDO GERAÇÃO DE PDF")
+    print("="*60)
+    
     buffer = io.BytesIO()
     
     footer_text = f"Relatório emitido por: {data.get('sistema', 'Sistema')}"
-    print(f"Footer: {footer_text}")
+    print(f"[LOG] Footer: {footer_text}")
     
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
-        rightMargin=2*cm,
-        leftMargin=2*cm,
-        topMargin=2*cm,
-        bottomMargin=3*cm
+        rightMargin=1*cm,
+        leftMargin=1*cm,
+        topMargin=1*cm,
+        bottomMargin=2*cm
     )
-    print("SimpleDocTemplate criado")
+    print("[LOG] SimpleDocTemplate criado")
     
     story = []
     styles = getSampleStyleSheet()
-    print("Estilos carregados")
+    print("[LOG] Estilos carregados")
     
     # Estilos customizados
     header_style = ParagraphStyle(
@@ -168,10 +171,10 @@ def generate_pdf(data):
     logo_path = 'assets/logo.png'
     
     if os.path.exists(logo_path):
-        logo = Image(logo_path, width=2.5*cm, height=2.5*cm, kind='proportional')
+        logo = Image(logo_path, width=3.75*cm, height=3.75*cm, kind='proportional')
         titulo_header = Paragraph("Trivia Relata", header_title_style)
         header_data = [[titulo_header, logo]]
-        header_table = Table(header_data, colWidths=[14*cm, 3*cm])
+        header_table = Table(header_data, colWidths=[15*cm, 4*cm])
         header_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, 0), 'LEFT'),
             ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
@@ -180,7 +183,7 @@ def generate_pdf(data):
     else:
         titulo_header = Paragraph("Trivia Relata", header_title_style)
         header_data = [[titulo_header]]
-        header_table = Table(header_data, colWidths=[17*cm])
+        header_table = Table(header_data, colWidths=[19*cm])
         header_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, 0), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -190,7 +193,7 @@ def generate_pdf(data):
     story.append(Spacer(1, 0.3*cm))
     
     # Linha separadora
-    line_table = Table([['']], colWidths=[17*cm], rowHeights=[0.05*cm])
+    line_table = Table([['']], colWidths=[19*cm], rowHeights=[0.05*cm])
     line_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#1e5ba8')),
     ]))
@@ -230,7 +233,7 @@ def generate_pdf(data):
         info_data.append(['', Paragraph(f"<b>Data:</b> {data['data']}", data_style)])
     
     if info_data:
-        info_table = Table(info_data, colWidths=[10*cm, 7*cm])
+        info_table = Table(info_data, colWidths=[11*cm, 8*cm])
         info_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
@@ -244,57 +247,72 @@ def generate_pdf(data):
     if data.get('titulo'):
         story.append(Paragraph(data['titulo'], title_style))
     
-    story.append(Spacer(1, 0.5*cm))
+    story.append(Spacer(1, 0.3*cm))
     
     # Adicionar fotos e observações
     fotos = data.get('fotos', [])
+    print(f"\n[LOG] Total de fotos para processar: {len(fotos)}")
     
     for idx, foto in enumerate(fotos):
+        print(f"\n[LOG] --- PROCESSANDO FOTO {idx + 1}/{len(fotos)} ---")
         try:
+            print(f"[LOG] Chamando process_image_for_pdf...")
             img_buffer = process_image_for_pdf(foto['imagem'])
+            print(f"[LOG] Buffer da imagem: {img_buffer}")
+            
             if img_buffer:
-                img = Image(img_buffer, width=8*cm, height=6*cm, kind='proportional')
-                observacao = Paragraph(foto.get('observacao', ''), observation_style)
+                print(f"[LOG] Buffer válido, criando Image object...")
+                # Garantir que o ponteiro do buffer esteja no início
+                img_buffer.seek(0)
+                # Imagem com dimensões: 6cm x 5cm
+                img = Image(img_buffer, width=6*cm, height=5*cm)
+                print(f"[LOG] Image object criado: {img}")
                 
-                # Criar tabela com imagem e observação
-                foto_table = Table([[img, observacao]], colWidths=[8.5*cm, 8.5*cm])
+                # Observação
+                obs_text = foto.get('observacao', 'Sem observações')
+                print(f"[LOG] Observação: {obs_text[:50]}...")
+                obs_para = Paragraph(obs_text, observation_style)
+                print(f"[LOG] Paragraph criado")
+                
+                # Tabela com imagem e observação lado a lado
+                print(f"[LOG] Criando tabela com imagem e observação...")
+                foto_data = [[img, obs_para]]
+                foto_table = Table(foto_data, colWidths=[6.5*cm, 12.5*cm])
                 foto_table.setStyle(TableStyle([
-                    ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-                    ('ALIGN', (1, 0), (1, 0), 'LEFT'),
                     ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                    ('LEFTPADDING', (0, 0), (-1, -1), 5),
-                    ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-                    ('TOPPADDING', (0, 0), (-1, -1), 5),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                    ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+                    ('LEFTPADDING', (1, 0), (1, 0), 0.5*cm),
+                    ('RIGHTPADDING', (0, 0), (0, 0), 0.2*cm),
                 ]))
+                print(f"[LOG] Tabela criada, adicionando à story...")
                 
                 story.append(foto_table)
+                print(f"[LOG] ✓ Foto {idx + 1} ADICIONADA COM SUCESSO")
+                print(f"[LOG] Story agora tem {len(story)} elementos")
                 
-                # Adicionar separador após cada foto (exceto a última)
+                # Espaço entre fotos
                 if idx < len(fotos) - 1:
-                    story.append(Spacer(1, 0.3*cm))
-                    separator = Table([['']], colWidths=[17*cm], rowHeights=[0.02*cm])
-                    separator.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#e2e8f0')),
-                    ]))
-                    story.append(separator)
                     story.append(Spacer(1, 0.5*cm))
-                else:
-                    story.append(Spacer(1, 0.8*cm))
+                    print(f"[LOG] Espaçador adicionado")
+            else:
+                print(f"[LOG] ✗ ERRO: Buffer de imagem é nulo!")
                 
-                # Adicionar quebra de página a cada 2 fotos (exceto na última)
-                if (idx + 1) % 2 == 0 and idx < len(fotos) - 1:
-                    story.append(PageBreak())
         except Exception as e:
-            print(f"Erro ao adicionar foto {idx}: {str(e)}")
+            print(f"\n[LOG] ✗ ERRO na foto {idx + 1}: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
             continue
     
+    print(f"\n[LOG] Total de elementos na story: {len(story)}")
+    
     # Gerar PDF
+    print(f"\n[LOG] Iniciando build do PDF com {len(story)} elementos...")
     doc.build(story, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, footer_text=footer_text, **kwargs))
-    print("PDF buildado com sucesso")
+    print("[LOG] ✓ PDF buildado com sucesso")
     
     buffer.seek(0)
-    print(f"Buffer pronto, tamanho: {buffer.getbuffer().nbytes} bytes")
+    print(f"[LOG] Buffer pronto, tamanho: {buffer.getbuffer().nbytes} bytes")
+    print("="*60)
     return buffer
 
 @app.route('/')
