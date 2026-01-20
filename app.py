@@ -4,7 +4,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from PIL import Image as PILImage
@@ -178,7 +178,7 @@ def generate_pdf(data):
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
     else:
-        titulo_header = Paragraph("Relatório de estados", header_title_style)
+        titulo_header = Paragraph("Trivia Relata", header_title_style)
         header_data = [[titulo_header]]
         header_table = Table(header_data, colWidths=[17*cm])
         header_table.setStyle(TableStyle([
