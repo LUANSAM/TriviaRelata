@@ -141,7 +141,7 @@ def generate_pdf(data):
         'CustomTitle',
         parent=styles['Heading2'],
         fontSize=16,
-        textColor=colors.HexColor('#2c3e50'),
+        textColor=colors.HexColor('#000000'),
         spaceAfter=20,
         spaceBefore=10,
         alignment=TA_CENTER
@@ -160,7 +160,7 @@ def generate_pdf(data):
         'HeaderTitle',
         parent=styles['Normal'],
         fontSize=18,
-        textColor=colors.HexColor('#1e293b'),
+        textColor=colors.HexColor('#000000'),
         fontName='Helvetica-Bold',
         alignment=TA_LEFT
     )
@@ -169,7 +169,7 @@ def generate_pdf(data):
     
     if os.path.exists(logo_path):
         logo = Image(logo_path, width=2.5*cm, height=2.5*cm, kind='proportional')
-        titulo_header = Paragraph("Relatório de estados", header_title_style)
+        titulo_header = Paragraph("Trivia Relata", header_title_style)
         header_data = [[titulo_header, logo]]
         header_table = Table(header_data, colWidths=[14*cm, 3*cm])
         header_table.setStyle(TableStyle([
