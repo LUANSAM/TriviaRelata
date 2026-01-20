@@ -1,18 +1,23 @@
 # 📋 Relatório Fotográfico - Trivia Trens
 
-Sistema web para geração de relatórios fotográficos em PDF.
+Sistema web para geração de relatórios fotográficos em PDF com design moderno e tema escuro.
 
 ## 🚀 Características
 
-- ✅ Interface web moderna e responsiva
+- ✅ Interface web moderna com tema escuro
+- ✅ Design inspirado em dashboard profissional
+- ✅ Cores da identidade Trivia (ciano/turquesa)
 - ✅ Upload múltiplo de fotos (até 50 por relatório)
 - ✅ Drag and drop de imagens
+- ✅ Modal popup para adicionar fotos (FAB no canto inferior direito)
+- ✅ Grid responsivo de cards para visualização
 - ✅ Preview das fotos em tempo real
 - ✅ Observações personalizadas para cada foto
 - ✅ Geração de PDF profissional com:
-  - Cabeçalho com logo da empresa
+  - Cabeçalho customizado "Relatório de estados" com logo
+  - Separadores entre imagens
   - Informações do relatório (local, sistema, data)
-  - Fotos à esquerda e observações à direita
+  - Fotos e observações lado a lado
   - Rodapé com sistema emissor e numeração de páginas
 - ✅ Processamento assíncrono para não travar a página
 - ✅ Validações de segurança
@@ -20,7 +25,7 @@ Sistema web para geração de relatórios fotográficos em PDF.
 
 ## 📋 Requisitos
 
-- Python 3.8 ou superior
+- Python 3.12 ou superior
 - pip (gerenciador de pacotes Python)
 
 ## 🔧 Instalação
@@ -57,7 +62,8 @@ http://localhost:5000
    - Sistema emissor
 
 4. **Adicione fotos:**
-   - Clique na área de upload ou arraste as fotos
+   - Clique no FAB (botão flutuante ciano) no canto inferior direito
+   - Arraste fotos para o modal ou clique para selecionar
    - Escreva observações para cada foto
 
 5. **Gere o PDF:**
@@ -66,6 +72,30 @@ http://localhost:5000
 
 6. **Reinicie quando necessário:**
    - Clique em "Reiniciar Relatório" para limpar todos os dados
+
+## 🌐 Deploy em Produção
+
+O app está configurado para deploy em plataformas gratuitas:
+
+### Render (Recomendado)
+1. Acesse https://render.com e crie uma conta
+2. Clique em "New +" → "Web Service"
+3. Conecte o repositório `LUANSAM/TriviaRelata`
+4. Configure:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app`
+5. Deploy! URL: `https://trivia-relata.onrender.com`
+
+### Railway
+1. Acesse https://railway.app
+2. "New Project" → "Deploy from GitHub repo"
+3. Selecione `TriviaRelata`
+4. Deploy automático!
+
+### Vercel
+1. Acesse https://vercel.com
+2. Import `TriviaRelata`
+3. Deploy!
 
 ## 🔒 Segurança
 
@@ -101,8 +131,8 @@ relatorio-fotografico/
 Edite as variáveis CSS em `static/css/style.css`:
 ```css
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
+    --primary-color: #00d9b8;  /* Ciano/Turquesa */
+    --bg-dark: #0f1117;        /* Fundo escuro */
     /* ... outras cores ... */
 }
 ```
@@ -158,3 +188,6 @@ Para dúvidas ou problemas:
 1. Verifique a seção de solução de problemas
 2. Consulte os logs no terminal
 3. Contate o administrador do sistema
+=======
+# Trivia
+>>>>>>> c9b0820a260c6161e437bf5510ad7cdfb781aa8a
