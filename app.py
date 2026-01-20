@@ -128,9 +128,9 @@ def generate_pdf(data):
         'CustomSubtitle',
         parent=styles['Normal'],
         fontSize=11,
-        textColor=colors.HexColor('#555555'),
+        textColor=colors.HexColor('#000000'),
         spaceAfter=6,
-        alignment=TA_CENTER
+        alignment=TA_LEFT
     )
     
     title_style = ParagraphStyle(
@@ -194,16 +194,45 @@ def generate_pdf(data):
     story.append(Spacer(1, 0.5*cm))
     
     # Informações do relatório
-    info_lines = []
-    if data.get('local'):
-        info_lines.append(Paragraph(f"<b>Local:</b> {data['local']}", subtitle_style))
-    if data.get('sistema_ref'):
-        info_lines.append(Paragraph(f"<b>Sistema:</b> {data['sistema_ref']}", subtitle_style))
-    if data.get('data'):
-        info_lines.append(Paragraph(f"<b>Data:</b> {data['data']}", subtitle_style))
+    info_data = []
     
-    for line in info_lines:
-        story.append(line)
+    if data.get('local'):
+        info_data.append([Paragraph(f"<b>Local:</b> {data['local']}", subtitle_style), ''])
+    
+    if data.get('sistema_ref') and data.get('data'):
+        # Sistema e Data na mesma linha
+        sistema_text = Paragraph(f"<b>Sistema:</b> {data['sistema_ref']}", subtitle_style)
+        data_style = ParagraphStyle(
+            'DataStyle',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#000000'),
+            spaceAfter=6,
+            alignment=TA_RIGHT
+        )
+        data_text = Paragraph(f"<b>Data:</b> {data['data']}", data_style)
+        info_data.append([sistema_text, data_text])
+    elif data.get('sistema_ref'):
+        info_data.append([Paragraph(f"<b>Sistema:</b> {data['sistema_ref']}", subtitle_style), ''])
+    elif data.get('data'):
+        data_style = ParagraphStyle(
+            'DataStyle',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#000000'),
+            spaceAfter=6,
+            alignment=TA_RIGHT
+        )
+        info_data.append(['', Paragraph(f"<b>Data:</b> {data['data']}", data_style)])
+    
+    if info_data:
+        info_table = Table(info_data, colWidths=[10*cm, 7*cm])
+        info_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        story.append(info_table)
     
     story.append(Spacer(1, 0.5*cm))
     
