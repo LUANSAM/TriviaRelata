@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Fotográfico - Trivia Trens</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="header-brand">
+                <h1>📋 Relatório Fotográfico</h1>
+                <p class="subtitle">Trivia Trens - Painel Web</p>
+            </div>
+        </header>
+
+        <div class="form-container">
+            <!-- Informações do Relatório -->
+            <section class="form-section">
+                <h2>INFORMAÇÕES DO RELATÓRIO</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="titulo">Título do Relatório</label>
+                        <input type="text" id="titulo" placeholder="Ex: Inspeção de Vagões - Janeiro 2026" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="local">Local</label>
+                        <input type="text" id="local" placeholder="Ex: Pátio Central" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sistemaRef">Sistema</label>
+                        <input type="text" id="sistemaRef" placeholder="Ex: Linha Norte" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="data">Data</label>
+                        <input type="date" id="data" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sistema">Emitido por</label>
+                        <input type="text" id="sistema" placeholder="Ex: Sistema de Manutenção" required>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload de Fotos -->
+            <section class="form-section">
+                <h2>FOTOS E OBSERVAÇÕES</h2>
+                
+                <div id="fotosContainer" class="fotos-container"></div>
+            </section>
+
+            <!-- Botões de Ação -->
+            <div class="action-buttons">
+                <button id="btnReiniciar" class="btn btn-secondary">
+                    Reiniciar Relatório
+                </button>
+                <button id="btnGerar" class="btn btn-primary">
+                    Gerar PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" id="fabAddPhoto" title="Adicionar Fotos">
+            <span class="fab-icon">➕</span>
+        </button>
+
+        <!-- Modal de Upload -->
+        <div id="uploadModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Adicionar Fotos</h3>
+                    <button class="modal-close" id="modalClose">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                        <div class="upload-icon">📤</div>
+                        <p class="upload-text">Clique ou arraste fotos aqui</p>
+                        <p class="upload-subtext">Aceita: JPG, PNG, WEBP (máx. 50 fotos)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>Gerando seu relatório...</p>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
