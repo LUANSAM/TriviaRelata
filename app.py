@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -25,6 +25,11 @@ CORS(app)
 # Criar pastas necessárias
 os.makedirs('temp_uploads', exist_ok=True)
 os.makedirs('assets', exist_ok=True)
+
+# Servir arquivos de assets (logo, etc.) para o frontend
+@app.route('/assets/<path:filename>')
+def serve_asset_file(filename):
+    return send_from_directory('assets', filename)
 
 # Extensões permitidas
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}

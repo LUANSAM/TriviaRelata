@@ -12,9 +12,10 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 const fabAddPhoto = document.getElementById('fabAddPhoto');
 const uploadModal = document.getElementById('uploadModal');
 const modalClose = document.getElementById('modalClose');
+const dataInput = document.getElementById('data');
 
-// Configurar data padrão para hoje
-document.getElementById('data').valueAsDate = new Date();
+// Configurar data padrão para hoje (ajustando fuso horário)
+setDateInputToToday();
 
 // Event Listeners
 fabAddPhoto.addEventListener('click', () => uploadModal.classList.add('active'));
@@ -51,6 +52,12 @@ uploadArea.addEventListener('drop', (e) => {
         processarArquivos(files);
     }
 });
+
+function setDateInputToToday() {
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    dataInput.value = today.toISOString().split('T')[0];
+}
 
 // Função para processar arquivos selecionados
 function handleFileSelect(e) {
@@ -185,7 +192,7 @@ async function gerarPDF() {
             titulo: document.getElementById('titulo').value.trim(),
             local: document.getElementById('local').value.trim(),
             sistema_ref: document.getElementById('sistemaRef').value.trim(),
-            data: formatarData(document.getElementById('data').value),
+            data: formatarData(dataInput.value),
             sistema: document.getElementById('sistema').value.trim(),
             fotos: fotos.map(f => ({
                 imagem: f.imagem,
@@ -273,7 +280,7 @@ function reiniciarRelatorio() {
     document.getElementById('titulo').value = '';
     document.getElementById('local').value = '';
     document.getElementById('sistemaRef').value = '';
-    document.getElementById('data').valueAsDate = new Date();
+    setDateInputToToday();
     document.getElementById('sistema').value = '';
 
     showToast('Relatório reiniciado', 'info');
