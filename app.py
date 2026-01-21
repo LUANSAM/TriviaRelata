@@ -7,6 +7,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
+from reportlab.graphics.shapes import Drawing, Line
 from PIL import Image as PILImage
 import os
 import io
@@ -134,9 +135,9 @@ def generate_pdf(data):
     subtitle_style = ParagraphStyle(
         'CustomSubtitle',
         parent=styles['Normal'],
-        fontSize=11,
+        fontSize=10,
         textColor=colors.HexColor('#000000'),
-        spaceAfter=6,
+        spaceAfter=2,
         alignment=TA_LEFT
     )
     
@@ -145,9 +146,10 @@ def generate_pdf(data):
         parent=styles['Heading2'],
         fontSize=16,
         textColor=colors.HexColor('#000000'),
-        spaceAfter=20,
+        spaceAfter=12,
         spaceBefore=10,
-        alignment=TA_CENTER
+        alignment=TA_LEFT,
+        fontName='Helvetica-Bold'
     )
     
     observation_style = ParagraphStyle(
@@ -158,96 +160,81 @@ def generate_pdf(data):
         alignment=TA_LEFT
     )
     
-    # Cabeçalho personalizado com título e logo
-    header_title_style = ParagraphStyle(
-        'HeaderTitle',
-        parent=styles['Normal'],
-        fontSize=18,
-        textColor=colors.HexColor('#000000'),
-        fontName='Helvetica-Bold',
-        alignment=TA_LEFT
-    )
+    # CABEÇALHO COM LINHAS COLORIDAS E LOGO
+    header_lines_height = 0.5*cm
+    lines_drawing = Drawing(19*cm, header_lines_height)
     
+    def add_colored_line(y_pos, length, hex_color):
+        line = Line(0, y_pos, length, y_pos)
+        line.strokeColor = colors.HexColor(hex_color)
+        line.strokeWidth = 2.5
+        line.strokeLineCap = 1  # rounded ends for smoother finish
+        lines_drawing.add(line)
+    
+    add_colored_line(header_lines_height - 0.02*cm, 19*cm, '#F26A21')   # Laranja superior
+    add_colored_line(header_lines_height - 0.16*cm, 17*cm, '#2E3192')   # Roxo central (encurtada)
+    add_colored_line(header_lines_height - 0.30*cm, 12*cm, '#1FB44F')   # Verde inferior
+    
+    story.append(lines_drawing)
+    story.append(Spacer(1, 0.25*cm))
+    
+    # Logo e título na mesma linha
     logo_path = 'assets/logo.png'
     
     if os.path.exists(logo_path):
-        logo = Image(logo_path, width=3.75*cm, height=3.75*cm, kind='proportional')
-        titulo_header = Paragraph("Trivia Relata", header_title_style)
-        header_data = [[titulo_header, logo]]
+        logo = Image(logo_path, width=3.0*cm, height=3.0*cm, kind='proportional')
+        titulo_relatorio = data.get('titulo', '')
+        titulo_para = Paragraph(f"<b>{titulo_relatorio}</b>", title_style)
+        
+        header_data = [[titulo_para, logo]]
         header_table = Table(header_data, colWidths=[15*cm, 4*cm])
         header_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, 0), 'LEFT'),
             ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (0, 0), 0),
+            ('RIGHTPADDING', (0, 0), (0, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
         ]))
     else:
-        titulo_header = Paragraph("Trivia Relata", header_title_style)
-        header_data = [[titulo_header]]
+        titulo_relatorio = data.get('titulo', '')
+        titulo_para = Paragraph(f"<b>{titulo_relatorio}</b>", title_style)
+        header_data = [[titulo_para]]
         header_table = Table(header_data, colWidths=[19*cm])
         header_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ]))
     
     story.append(header_table)
     story.append(Spacer(1, 0.3*cm))
     
-    # Linha separadora
-    line_table = Table([['']], colWidths=[19*cm], rowHeights=[0.05*cm])
-    line_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#1e5ba8')),
-    ]))
-    story.append(line_table)
-    story.append(Spacer(1, 0.5*cm))
-    
-    # Informações do relatório
+    # Informações: Data, Local, Sistema
     info_data = []
     
-    if data.get('local'):
-        info_data.append([Paragraph(f"<b>Local:</b> {data['local']}", subtitle_style), ''])
+    if data.get('data'):
+        info_data.append([Paragraph(f"<b>Data:</b> {data['data']}", subtitle_style)])
     
-    if data.get('sistema_ref') and data.get('data'):
-        # Sistema e Data na mesma linha
-        sistema_text = Paragraph(f"<b>Sistema:</b> {data['sistema_ref']}", subtitle_style)
-        data_style = ParagraphStyle(
-            'DataStyle',
-            parent=styles['Normal'],
-            fontSize=11,
-            textColor=colors.HexColor('#000000'),
-            spaceAfter=6,
-            alignment=TA_RIGHT
-        )
-        data_text = Paragraph(f"<b>Data:</b> {data['data']}", data_style)
-        info_data.append([sistema_text, data_text])
-    elif data.get('sistema_ref'):
-        info_data.append([Paragraph(f"<b>Sistema:</b> {data['sistema_ref']}", subtitle_style), ''])
-    elif data.get('data'):
-        data_style = ParagraphStyle(
-            'DataStyle',
-            parent=styles['Normal'],
-            fontSize=11,
-            textColor=colors.HexColor('#000000'),
-            spaceAfter=6,
-            alignment=TA_RIGHT
-        )
-        info_data.append(['', Paragraph(f"<b>Data:</b> {data['data']}", data_style)])
+    if data.get('local'):
+        info_data.append([Paragraph(f"<b>Local:</b> {data['local']}", subtitle_style)])
+    
+    if data.get('sistema_ref'):
+        info_data.append([Paragraph(f"<b>Sistema:</b> {data['sistema_ref']}", subtitle_style)])
     
     if info_data:
-        info_table = Table(info_data, colWidths=[11*cm, 8*cm])
+        info_table = Table(info_data, colWidths=[19*cm])
         info_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
         ]))
         story.append(info_table)
     
     story.append(Spacer(1, 0.5*cm))
-    
-    # Título do relatório
-    if data.get('titulo'):
-        story.append(Paragraph(data['titulo'], title_style))
-    
-    story.append(Spacer(1, 0.3*cm))
+
     
     # Adicionar fotos e observações
     fotos = data.get('fotos', [])
