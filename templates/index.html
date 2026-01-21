@@ -82,10 +82,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="upload-area" id="uploadArea">
-                        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                        <input type="file" id="fileInputGallery" accept="image/*" multiple style="display: none;">
+                        <input type="file" id="fileInputCamera" accept="image/*" capture="environment" multiple style="display: none;">
                         <div class="upload-icon">📤</div>
                         <p class="upload-text">Clique ou arraste fotos aqui</p>
-                        <p class="upload-subtext">Aceita: JPG, PNG, WEBP (máx. 50 fotos)</p>
+                        <p class="upload-subtext">Escolha entre galeria ou câmera (JPG, PNG, WEBP - máx. 50 fotos)</p>
+                        <div class="upload-actions">
+                            <button type="button" class="btn btn-secondary" id="btnSelectGallery">Galeria</button>
+                            <button type="button" class="btn btn-primary" id="btnSelectCamera">Câmera</button>
+                        </div>
                     </div>
                 </div>
             </div>

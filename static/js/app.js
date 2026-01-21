@@ -4,7 +4,8 @@ let fotoIdCounter = 0;
 
 // Elementos DOM
 const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
+const fileInputGallery = document.getElementById('fileInputGallery');
+const fileInputCamera = document.getElementById('fileInputCamera');
 const fotosContainer = document.getElementById('fotosContainer');
 const btnGerar = document.getElementById('btnGerar');
 const btnReiniciar = document.getElementById('btnReiniciar');
@@ -13,6 +14,10 @@ const fabAddPhoto = document.getElementById('fabAddPhoto');
 const uploadModal = document.getElementById('uploadModal');
 const modalClose = document.getElementById('modalClose');
 const dataInput = document.getElementById('data');
+const btnSelectGallery = document.getElementById('btnSelectGallery');
+const btnSelectCamera = document.getElementById('btnSelectCamera');
+let isSelectingFile = false;
+let selectingTimeout;
 
 // Configurar data padrão para hoje (ajustando fuso horário)
 setDateInputToToday();
@@ -25,8 +30,23 @@ uploadModal.addEventListener('click', (e) => {
         uploadModal.classList.remove('active');
     }
 });
-uploadArea.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', handleFileSelect);
+btnSelectGallery.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isSelectingFile) return;
+    isSelectingFile = true;
+    resetSelectingFlagSoon();
+    fileInputGallery.click();
+});
+
+btnSelectCamera.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isSelectingFile) return;
+    isSelectingFile = true;
+    resetSelectingFlagSoon();
+    fileInputCamera.click();
+});
+fileInputGallery.addEventListener('change', handleFileSelect);
+fileInputCamera.addEventListener('change', handleFileSelect);
 btnGerar.addEventListener('click', gerarPDF);
 btnReiniciar.addEventListener('click', reiniciarRelatorio);
 
@@ -63,7 +83,17 @@ function setDateInputToToday() {
 function handleFileSelect(e) {
     const files = Array.from(e.target.files);
     processarArquivos(files);
-    fileInput.value = ''; // Limpar input
+    e.target.value = ''; // Limpar input para permitir reenvio do mesmo arquivo
+    isSelectingFile = false;
+}
+
+function resetSelectingFlagSoon() {
+    if (selectingTimeout) {
+        clearTimeout(selectingTimeout);
+    }
+    selectingTimeout = setTimeout(() => {
+        isSelectingFile = false;
+    }, 1500);
 }
 
 // Processar múltiplos arquivos

@@ -175,6 +175,19 @@ input:focus {
     color: var(--text-muted);
 }
 
+.upload-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.upload-actions .btn {
+    min-width: 140px;
+    padding: 10px 18px;
+}
+
 .fotos-container {
     margin-top: 20px;
     display: grid;
