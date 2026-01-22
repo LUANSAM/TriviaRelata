@@ -9,6 +9,7 @@ from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from reportlab.graphics.shapes import Drawing, Line
 from PIL import Image as PILImage
+from PIL import ExifTags
 import os
 import io
 import base64
@@ -78,6 +79,27 @@ def process_image_for_pdf(image_data):
         
         image_bytes = base64.b64decode(image_data)
         img = PILImage.open(io.BytesIO(image_bytes))
+        
+        # Corrigir orientação baseada nos metadados EXIF
+        try:
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            
+            exif_data = img._getexif()
+            if exif_data:
+                exif_orientation = exif_data.get(orientation)
+                
+                # Rotacionar conforme a orientação EXIF
+                if exif_orientation == 3:
+                    img = img.rotate(180, expand=True)
+                elif exif_orientation == 6:
+                    img = img.rotate(270, expand=True)
+                elif exif_orientation == 8:
+                    img = img.rotate(90, expand=True)
+        except (AttributeError, KeyError, IndexError):
+            # Se não conseguir ler EXIF, continua sem rotação
+            pass
         
         # Converter para RGB se necessário
         if img.mode in ('RGBA', 'LA', 'P'):
